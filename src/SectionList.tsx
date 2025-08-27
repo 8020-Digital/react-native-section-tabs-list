@@ -9,19 +9,24 @@ import {
 } from 'react-native';
 import TabBar, { TabBarRef } from './TabBar';
 
+// Declare global setTimeout for TypeScript
+declare global {
+  function setTimeout(callback: () => void, delay: number): number;
+  function clearTimeout(id: number): void;
+}
+
 export interface SectionListRef {
-  scrollToLocation: RNSectionList<any>['scrollToLocation'];
-  scrollToEnd: RNSectionList<any>['scrollToEnd'];
-  scrollToOffset: RNSectionList<any>['scrollToOffset'];
-  scrollToIndex: RNSectionList<any>['scrollToIndex'];
-  flashScrollIndicators: RNSectionList<any>['flashScrollIndicators'];
-  getNativeScrollRef: RNSectionList<any>['getNativeScrollRef'];
-  getScrollResponder: RNSectionList<any>['getScrollResponder'];
-  getScrollableNode: RNSectionList<any>['getScrollableNode'];
+  scrollToLocation: (params: any) => void;
+  scrollToEnd: (params?: { animated?: boolean }) => void;
+  scrollToOffset: (params: { offset: number; animated?: boolean }) => void;
+  scrollToIndex: (params: any) => void;
+  flashScrollIndicators: () => void;
+  getNativeScrollRef: () => any;
+  getScrollResponder: () => any;
+  getScrollableNode: () => any;
 }
 
 interface IProps extends SectionListProps<any> {
-  scrollToLocationOffset?: number;
   tabBarStyle?: ViewStyle | RegisteredStyle<ViewStyle>;
   renderTab: (section: SectionListData<any> & { isActive: boolean }) => React.ReactNode;
   sections: ReadonlyArray<SectionListData<any>>;
@@ -37,7 +42,7 @@ const SectionList = React.forwardRef<SectionListWithTabsRef, IProps>(({
     sections,
     renderTab,
     tabBarStyle,
-    scrollToLocationOffset: _scrollToLocationOffset,
+
     ...restProps
   }, ref) => {
       const [currentIndex, setCurrentIndex] = React.useState<number>(0);
@@ -67,7 +72,8 @@ const SectionList = React.forwardRef<SectionListWithTabsRef, IProps>(({
       if (!sectionList) return;
 
       // Use a timeout to allow the list to render completely
-      setTimeout(() => {
+      // eslint-disable-next-line no-undef
+      const timer = setTimeout(() => {
         const positions: { [key: number]: number } = {};
         let cumulativeHeight = 0;
 
@@ -79,17 +85,18 @@ const SectionList = React.forwardRef<SectionListWithTabsRef, IProps>(({
           const sectionHeaderHeight = 60;
           
           // Item height (approximate) - you can adjust these based on your content
-          const itemHeight = section.title === 'People' ? 100 :
-                            section.title === 'Products' ? 120 :
-                            section.title === 'Companies' ? 110 :
-                            section.title === 'Posts' ? 130 :
-                            section.title === 'Books' ? 115 :
-                            section.title === 'Movies' ? 125 :
-                            section.title === 'Restaurants' ? 120 :
-                            section.title === 'Events' ? 110 :
-                            section.title === 'Locations' ? 125 :
-                            section.title === 'Tasks' ? 135 :
-                            section.title === 'Messages' ? 105 : 100;
+          const sectionWithTitle = section as any;
+          const itemHeight = sectionWithTitle.title === 'People' ? 100 :
+                            sectionWithTitle.title === 'Products' ? 120 :
+                            sectionWithTitle.title === 'Companies' ? 110 :
+                            sectionWithTitle.title === 'Posts' ? 130 :
+                            sectionWithTitle.title === 'Books' ? 115 :
+                            sectionWithTitle.title === 'Movies' ? 125 :
+                            sectionWithTitle.title === 'Restaurants' ? 120 :
+                            sectionWithTitle.title === 'Events' ? 110 :
+                            sectionWithTitle.title === 'Locations' ? 125 :
+                            sectionWithTitle.title === 'Tasks' ? 135 :
+                            sectionWithTitle.title === 'Messages' ? 105 : 100;
 
           const totalItemsHeight = section.data.length * (itemHeight + 8); // 8px for margins
           
@@ -119,6 +126,9 @@ const SectionList = React.forwardRef<SectionListWithTabsRef, IProps>(({
           }
         }
       }, 500); // Allow time for content to render
+      
+      // eslint-disable-next-line no-undef
+      return () => clearTimeout(timer);
     }, [prepareSections]);
 
     // Calculate positions when sections change or component mounts
@@ -128,22 +138,22 @@ const SectionList = React.forwardRef<SectionListWithTabsRef, IProps>(({
 
     React.useImperativeHandle(ref, () => ({
       sectionList: {
-        scrollToLocation: (...args: any[]) => sectionListRef.current?.scrollToLocation(...args),
-        scrollToEnd: (...args: any[]) => sectionListRef.current?.scrollToEnd(...args),
-        scrollToOffset: (...args: any[]) => sectionListRef.current?.scrollToOffset(...args),
-        scrollToIndex: (...args: any[]) => sectionListRef.current?.scrollToIndex(...args),
+        scrollToLocation: (params: any) => (sectionListRef.current as any)?.scrollToLocation(params),
+        scrollToEnd: (params?: { animated?: boolean }) => (sectionListRef.current as any)?.scrollToEnd(params),
+        scrollToOffset: (params: { offset: number; animated?: boolean }) => (sectionListRef.current as any)?.scrollToOffset(params),
+        scrollToIndex: (params: any) => (sectionListRef.current as any)?.scrollToIndex(params),
         flashScrollIndicators: () => sectionListRef.current?.flashScrollIndicators(),
-        getNativeScrollRef: () => sectionListRef.current?.getNativeScrollRef(),
-        getScrollResponder: () => sectionListRef.current?.getScrollResponder(),
-        getScrollableNode: () => sectionListRef.current?.getScrollableNode(),
+        getNativeScrollRef: () => (sectionListRef.current as any)?.getNativeScrollRef(),
+        getScrollResponder: () => (sectionListRef.current as any)?.getScrollResponder(),
+        getScrollableNode: () => (sectionListRef.current as any)?.getScrollableNode(),
       },
       tabBar: {
         scrollTo: (...args: any[]) => tabBarRef.current?.scrollTo(...args),
         scrollToEnd: (...args: any[]) => tabBarRef.current?.scrollToEnd(...args),
         flashScrollIndicators: () => tabBarRef.current?.flashScrollIndicators(),
-        getScrollResponder: () => tabBarRef.current?.getScrollResponder(),
+        getScrollResponder: () => (tabBarRef.current?.getScrollResponder() as any),
         getScrollableNode: () => tabBarRef.current?.getScrollableNode(),
-        getNativeScrollRef: () => tabBarRef.current?.getNativeScrollRef(),
+        getNativeScrollRef: () => (tabBarRef.current?.getNativeScrollRef() as any),
       },
       scrollToSection: (index: number) => {
         const sectionList = sectionListRef.current;

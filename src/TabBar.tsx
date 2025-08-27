@@ -56,9 +56,9 @@ const TabBar = React.forwardRef<TabBarRef, IProps>(({
     scrollTo: (...args: any[]) => scrollViewRef.current?.scrollTo(...args),
     scrollToEnd: (...args: any[]) => scrollViewRef.current?.scrollToEnd(...args),
     flashScrollIndicators: () => scrollViewRef.current?.flashScrollIndicators(),
-    getScrollResponder: () => scrollViewRef.current?.getScrollResponder(),
+    getScrollResponder: () => (scrollViewRef.current?.getScrollResponder() as any),
     getScrollableNode: () => scrollViewRef.current?.getScrollableNode(),
-    getNativeScrollRef: () => scrollViewRef.current?.getNativeScrollRef(),
+    getNativeScrollRef: () => (scrollViewRef.current?.getNativeScrollRef() as any),
   }), []);
 
   const getScrollAmount = React.useCallback(() => {

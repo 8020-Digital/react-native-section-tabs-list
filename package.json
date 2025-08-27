@@ -25,7 +25,7 @@
   "homepage": "https://github.com/8020-Digital/react-native-section-tabs-list",
   "repository": {
     "type": "git",
-    "url": "https://github.com/8020-Digital/react-native-section-tabs-list"
+    "url": "git+https://github.com/8020-Digital/react-native-section-tabs-list.git"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
@@ -34,6 +34,7 @@
     "@typescript-eslint/parser": "^8.41.0",
     "eslint": "^9.34.0",
     "eslint-config-prettier": "^10.1.8",
+    "react-native": "^0.81.0",
     "typescript": "5.8.3"
   },
   "peerDependencies": {
