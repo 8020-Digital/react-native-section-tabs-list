@@ -12,7 +12,7 @@
     "example:android": "cd example && yarn android",
     "example:ios": "cd example && yarn ios",
     "example:web": "cd example && yarn web",
-    "postinstall": "cd example && yarn install && echo '\\n🎉 Example dependencies installed successfully!\\n\\n🚀 To run the example project:\\n   yarn example        - Start Expo dev server\\n   yarn example:ios     - Run on iOS\\n   yarn example:android - Run on Android\\n   yarn example:web     - Run on web\\n'"
+    "example:install": "cd example && yarn install && echo '\\n🎉 Example dependencies installed successfully!\\n\\n🚀 To run the example project:\\n   yarn example        - Start Expo dev server\\n   yarn example:ios     - Run on iOS\\n   yarn example:android - Run on Android\\n   yarn example:web     - Run on web\\n'"
   },
   "keywords": [
     "react-native",
