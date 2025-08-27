@@ -7,7 +7,7 @@
   "scripts": {
     "build": "rm -rf ./lib/* && yarn lint && tsc",
     "lint": "eslint src --ext .ts,.tsx",
-    "release": "make increase-version"
+    "release": "make release"
   },
   "keywords": [
     "react-native",
