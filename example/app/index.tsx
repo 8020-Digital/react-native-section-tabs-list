@@ -202,10 +202,6 @@ function HomeScreen() {
     if (!sectionsRef.current) {
       const data = generateFakeData();
       sectionsRef.current = data;
-      console.log(
-        'Generated sections data:',
-        data.map((s) => `${s.title}: ${s.data.length} items`)
-      );
     }
     return sectionsRef.current;
   }, []);
@@ -215,16 +211,10 @@ function HomeScreen() {
 
   // Scroll to random tab when screen opens
   React.useEffect(() => {
-    // if (sectionListRef.current) {
-    //   // Generate random index (0 to sections.length - 1)
-    //   // const randomIndex = Math.floor(Math.random() * sections.length + 1);
-    //   const randomIndex = 5;
-    //   // Add delay to ensure positions are calculated before scrolling
-    //   setTimeout(() => {
-    //     console.log('Scrolling to section:', randomIndex);
-    //     sectionListRef.current.scrollToSection(randomIndex);
-    //   }, 1000);
-    // }
+    if (sectionListRef.current) {
+      const randomIndex = Math.floor(Math.random() * sections.length + 1);
+      sectionListRef.current.scrollToSection(randomIndex);
+    }
   }, [sections.length]);
 
   const renderTab = (
@@ -453,149 +443,6 @@ function HomeScreen() {
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
-
-      <ScrollView horizontal style={{ maxHeight: 150 }}>
-        <View style={{ gap: 10, flexDirection: 'column' }}>
-          <View style={{ flexDirection: 'row', gap: 10 }}>
-            <Pressable
-              onPress={() => {
-                const newCount = clickCount + 1;
-                setClickCount(newCount);
-                console.log(
-                  `Click ${newCount}: Scrolling to section 5 (default retry)`
-                );
-                sectionListRef.current?.scrollToSection(5);
-              }}
-              style={[styles.tab, styles.activeTab]}
-            >
-              <Text
-                style={[
-                  styles.tabCount,
-                  styles.activeTabCount,
-                  { maxWidth: 120 }
-                ]}
-              >
-                {`Default Retry: Books (Index 5)`}
-              </Text>
-            </Pressable>
-
-            <Pressable
-              onPress={() => {
-                const newCount = clickCount + 1;
-                setClickCount(newCount);
-                console.log(
-                  `Click ${newCount}: Scrolling to section 5`
-                );
-                sectionListRef.current?.scrollToSection(5);
-              }}
-              style={[styles.tab, styles.activeTab]}
-            >
-              <Text
-                style={[
-                  styles.tabCount,
-                  styles.activeTabCount,
-                  { maxWidth: 120 }
-                ]}
-              >
-                {`Aggressive Retry: Books`}
-              </Text>
-            </Pressable>
-
-            <Pressable
-              onPress={() => {
-                const newCount = clickCount + 1;
-                setClickCount(newCount);
-                console.log(
-                  `Click ${newCount}: Scrolling to section 10 (fast retry)`
-                );
-                sectionListRef.current?.scrollToSection(10, {
-                  maxRetries: 2,
-                  timeoutMs: 1000,
-                  retryDelayMs: 100
-                });
-              }}
-              style={[styles.tab, styles.activeTab]}
-            >
-              <Text
-                style={[
-                  styles.tabCount,
-                  styles.activeTabCount,
-                  { maxWidth: 120 }
-                ]}
-              >
-                {`Fast Retry: Messages`}
-              </Text>
-            </Pressable>
-          </View>
-
-          <View style={{ flexDirection: 'row', gap: 10 }}>
-            <Pressable
-              onPress={() => {
-                const newCount = clickCount + 1;
-                setClickCount(newCount);
-                console.log(`Click ${newCount}: Scrolling to section 0`);
-                sectionListRef.current?.scrollToSection(0);
-              }}
-              style={[styles.tab, styles.activeTab]}
-            >
-              <Text
-                style={[
-                  styles.tabCount,
-                  styles.activeTabCount,
-                  { maxWidth: 120 }
-                ]}
-              >
-                {`Scroll to People (Index 0)`}
-              </Text>
-            </Pressable>
-
-            <Pressable
-              onPress={() => {
-                const newCount = clickCount + 1;
-                setClickCount(newCount);
-                console.log(`Click ${newCount}: Scrolling to section 11`);
-                sectionListRef.current?.scrollToSection(11);
-              }}
-              style={[styles.tab, styles.activeTab]}
-            >
-              <Text
-                style={[
-                  styles.tabCount,
-                  styles.activeTabCount,
-                  { maxWidth: 120 }
-                ]}
-              >
-                {`Scroll to Messages (Index 11)`}
-              </Text>
-            </Pressable>
-
-            <Pressable
-              onPress={() => {
-                const newCount = clickCount + 1;
-                setClickCount(newCount);
-                console.log(
-                  `Click ${newCount}: Scrolling to section 5 (no retry)`
-                );
-                sectionListRef.current?.scrollToSection(5, {
-                  maxRetries: 0,
-                  timeoutMs: 0
-                });
-              }}
-              style={[styles.tab, styles.activeTab]}
-            >
-              <Text
-                style={[
-                  styles.tabCount,
-                  styles.activeTabCount,
-                  { maxWidth: 120 }
-                ]}
-              >
-                {`No Retry: Books`}
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-      </ScrollView>
 
       <SectionList
         ref={sectionListRef}
