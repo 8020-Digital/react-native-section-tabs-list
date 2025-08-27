@@ -1,6 +1,6 @@
-# React Native Tabs Section List
+# React Native Section Tabs  List
 
-[![npm version](https://badge.fury.io/js/react-native-tabs-section-list.svg)](https://badge.fury.io/js/react-native-tabs-section-list)
+[![npm version](https://badge.fury.io/js/react-native-section-tabs-list.svg)](https://badge.fury.io/js/react-native-section-tabs-list)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A beautiful, performant React Native component that combines section lists with scrollable tabs. Perfect for creating organized content with smooth navigation between different categories.
@@ -27,13 +27,13 @@ A beautiful, performant React Native component that combines section lists with 
 ## 📦 Installation
 
 ```bash
-npm install react-native-tabs-section-list
+npm install react-native-section-tabs-list
 ```
 
 or with yarn:
 
 ```bash
-yarn add react-native-tabs-section-list
+yarn add react-native-section-tabs-list
 ```
 
 ## 🚀 Quick Start
@@ -41,7 +41,7 @@ yarn add react-native-tabs-section-list
 ```tsx
 import React from 'react';
 import { Text, View, TouchableOpacity } from 'react-native';
-import SectionList, { SectionListWithTabsRef } from 'react-native-tabs-section-list';
+import SectionList, { SectionListWithTabsRef } from 'react-native-section-tabs-list';
 
 const MyComponent = () => {
   const sectionListRef = React.useRef<SectionListWithTabsRef>(null);

@@ -6,7 +6,7 @@ const config = getDefaultConfig(__dirname);
 
 // Add the parent directory to the watchFolders so Metro can find the src files
 config.watchFolders = [
-  path.resolve(__dirname, '..'), // Parent directory (react-native-tabs-section-list)
+  path.resolve(__dirname, '..'), // Parent directory (react-native-section-tabs-list)
 ];
 
 // Configure resolver to look in the parent directory for modules
