@@ -28,7 +28,6 @@
   ],
   "author": "Pedro Goiânia",
   "license": "MIT",
-  "private": true,
   "homepage": "https://github.com/8020-Digital/react-native-section-tabs-list",
   "repository": {
     "type": "git",
