@@ -10,10 +10,8 @@ import {
 import TabBar, { TabBarRef } from './TabBar';
 
 // Declare global setTimeout for TypeScript
-declare global {
-  function setTimeout(callback: () => void, delay: number): number;
-  function clearTimeout(id: number): void;
-}
+declare const setTimeout: (callback: (...args: any[]) => void, delay?: number) => number;
+declare const clearTimeout: (id: number) => void;
 
 export interface SectionListRef {
   scrollToLocation: (params: any) => void;
@@ -30,6 +28,7 @@ interface IProps extends SectionListProps<any> {
   tabBarStyle?: ViewStyle | RegisteredStyle<ViewStyle>;
   renderTab: (section: SectionListData<any> & { isActive: boolean }) => React.ReactNode;
   sections: ReadonlyArray<SectionListData<any>>;
+  onSectionsReady?: () => void;
 }
 
 export interface SectionListWithTabsRef {
@@ -42,6 +41,7 @@ const SectionList = React.forwardRef<SectionListWithTabsRef, IProps>(({
     sections,
     renderTab,
     tabBarStyle,
+    onSectionsReady,
 
     ...restProps
   }, ref) => {
@@ -52,6 +52,7 @@ const SectionList = React.forwardRef<SectionListWithTabsRef, IProps>(({
   
   // Track section positions dynamically
   const sectionPositionsRef = React.useRef<{ [key: number]: number }>({});
+  const sectionMeasurementsRef = React.useRef<{ [key: number]: { headerHeight: number; itemHeights: number[] } }>({});
   const [sectionsReady, setSectionsReady] = React.useState(false);
   const pendingScrollIndexRef = React.useRef<number | null>(null);
 
@@ -66,55 +67,69 @@ const SectionList = React.forwardRef<SectionListWithTabsRef, IProps>(({
       [sections]
     );
 
-    // Calculate section positions based on content
-    const calculateSectionPositions = React.useCallback(() => {
-      const sectionList = sectionListRef.current;
-      if (!sectionList) return;
+    // Debounce ref to prevent excessive recalculations
+    const debounceTimerRef = React.useRef<number | null>(null);
 
-      // Use a timeout to allow the list to render completely
-      // eslint-disable-next-line no-undef
-      const timer = setTimeout(() => {
+    // Calculate section positions based on actual measurements
+    const calculateSectionPositions = React.useCallback(() => {
+      // Debounce calculations to avoid excessive updates during rapid layout changes
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+
+      debounceTimerRef.current = setTimeout(() => {
         const positions: { [key: number]: number } = {};
         let cumulativeHeight = 0;
 
         prepareSections.forEach((section, index) => {
           positions[index] = cumulativeHeight;
-          
-          // Estimate height based on section content
-          // Section header height (approximate)
-          const sectionHeaderHeight = 60;
-          
-          // Item height (approximate) - you can adjust these based on your content
-          const sectionWithTitle = section as any;
-          const itemHeight = sectionWithTitle.title === 'People' ? 100 :
-                            sectionWithTitle.title === 'Products' ? 120 :
-                            sectionWithTitle.title === 'Companies' ? 110 :
-                            sectionWithTitle.title === 'Posts' ? 130 :
-                            sectionWithTitle.title === 'Books' ? 115 :
-                            sectionWithTitle.title === 'Movies' ? 125 :
-                            sectionWithTitle.title === 'Restaurants' ? 120 :
-                            sectionWithTitle.title === 'Events' ? 110 :
-                            sectionWithTitle.title === 'Locations' ? 125 :
-                            sectionWithTitle.title === 'Tasks' ? 135 :
-                            sectionWithTitle.title === 'Messages' ? 105 : 100;
 
-          const totalItemsHeight = section.data.length * (itemHeight + 8); // 8px for margins
-          
-          cumulativeHeight += sectionHeaderHeight + totalItemsHeight;
+          const measurements = sectionMeasurementsRef.current[index];
+          if (measurements) {
+            // Use actual measured heights
+            const sectionHeaderHeight = measurements.headerHeight;
+            const totalItemsHeight = measurements.itemHeights.reduce((sum, height) => {
+              // Add item height plus margin (assuming 8px margin as before)
+              return sum + height + 8;
+            }, 0);
+
+            cumulativeHeight += sectionHeaderHeight + totalItemsHeight;
+          } else {
+            // Fallback to estimated heights if measurements aren't ready yet
+            const sectionHeaderHeight = 60;
+            const estimatedItemHeight = 100; // Default estimate
+            const totalItemsHeight = section.data.length * (estimatedItemHeight + 8);
+            cumulativeHeight += sectionHeaderHeight + totalItemsHeight;
+          }
         });
 
         sectionPositionsRef.current = positions;
         setSectionsReady(true);
-        
+
+        // Call the callback to notify that sections are ready
+        if (onSectionsReady) {
+          onSectionsReady();
+        }
+
         // Execute pending scroll if there is one
         if (pendingScrollIndexRef.current !== null) {
           const pendingIndex = pendingScrollIndexRef.current;
           pendingScrollIndexRef.current = null;
-          
+
           // Execute the scroll with calculated positions
           const sectionList = sectionListRef.current;
           if (sectionList) {
-            const targetY = positions[pendingIndex] || 0;
+            let targetY = positions[pendingIndex] || 0;
+
+            // Adjust to show the first item instead of the header
+            const measurements = sectionMeasurementsRef.current[pendingIndex];
+            if (measurements && measurements.headerHeight > 0) {
+              targetY += measurements.headerHeight;
+            } else {
+              // Fallback: estimate header height
+              targetY += 60;
+            }
+
             const scrollResponder = sectionList.getScrollResponder?.();
             if (scrollResponder && scrollResponder.scrollTo) {
               scrollResponder.scrollTo({
@@ -125,14 +140,41 @@ const SectionList = React.forwardRef<SectionListWithTabsRef, IProps>(({
             }
           }
         }
-      }, 500); // Allow time for content to render
-      
-      // eslint-disable-next-line no-undef
-      return () => clearTimeout(timer);
+      }, 100); // 100ms debounce
     }, [prepareSections]);
 
     // Calculate positions when sections change or component mounts
     React.useEffect(() => {
+      calculateSectionPositions();
+    }, [calculateSectionPositions]);
+
+    // Cleanup debounce timer on unmount
+    React.useEffect(() => {
+      return () => {
+        if (debounceTimerRef.current) {
+          clearTimeout(debounceTimerRef.current);
+        }
+      };
+    }, []);
+
+    // Handlers for measuring section headers and items
+    const handleSectionHeaderLayout = React.useCallback((sectionIndex: number, event: { nativeEvent: { layout: { height: number } } }) => {
+      const { height } = event.nativeEvent.layout;
+      const currentMeasurements = sectionMeasurementsRef.current[sectionIndex] || { headerHeight: 0, itemHeights: [] };
+      currentMeasurements.headerHeight = height;
+      sectionMeasurementsRef.current[sectionIndex] = currentMeasurements;
+
+      // Recalculate positions after measurement
+      calculateSectionPositions();
+    }, [calculateSectionPositions]);
+
+    const handleItemLayout = React.useCallback((sectionIndex: number, itemIndex: number, event: { nativeEvent: { layout: { height: number } } }) => {
+      const { height } = event.nativeEvent.layout;
+      const currentMeasurements = sectionMeasurementsRef.current[sectionIndex] || { headerHeight: 0, itemHeights: [] };
+      currentMeasurements.itemHeights[itemIndex] = height;
+      sectionMeasurementsRef.current[sectionIndex] = currentMeasurements;
+
+      // Recalculate positions after measurement
       calculateSectionPositions();
     }, [calculateSectionPositions]);
 
@@ -159,8 +201,17 @@ const SectionList = React.forwardRef<SectionListWithTabsRef, IProps>(({
         const sectionList = sectionListRef.current;
         if (sectionList && sectionsReady) {
           // Use dynamically calculated positions
-          const targetY = sectionPositionsRef.current[index] || 0;
-          
+          let targetY = sectionPositionsRef.current[index] || 0;
+
+          // Adjust to show the first item instead of the header
+          const measurements = sectionMeasurementsRef.current[index];
+          if (measurements && measurements.headerHeight > 0) {
+            targetY += measurements.headerHeight;
+          } else {
+            // Fallback: estimate header height
+            targetY += 60;
+          }
+
           // Get the scroll responder and scroll directly
           const scrollResponder = sectionList.getScrollResponder?.();
           if (scrollResponder && scrollResponder.scrollTo) {
@@ -189,8 +240,17 @@ const SectionList = React.forwardRef<SectionListWithTabsRef, IProps>(({
         const sectionList = sectionListRef.current;
         if (sectionList && sectionsReady) {
           // Use dynamically calculated positions
-          const targetY = sectionPositionsRef.current[index] || 0;
-          
+          let targetY = sectionPositionsRef.current[index] || 0;
+
+          // Adjust to show the first item instead of the header
+          const measurements = sectionMeasurementsRef.current[index];
+          if (measurements && measurements.headerHeight > 0) {
+            targetY += measurements.headerHeight;
+          } else {
+            // Fallback: estimate header height
+            targetY += 60;
+          }
+
           // Get the scroll responder and scroll directly
           const scrollResponder = sectionList.getScrollResponder?.();
           if (scrollResponder && scrollResponder.scrollTo) {
@@ -201,6 +261,8 @@ const SectionList = React.forwardRef<SectionListWithTabsRef, IProps>(({
             });
           }
         } else if (!sectionsReady) {
+          // Store pending scroll index for when sections are ready
+          pendingScrollIndexRef.current = index;
           // Fallback: try to calculate positions immediately
           calculateSectionPositions();
         }
@@ -250,6 +312,31 @@ const SectionList = React.forwardRef<SectionListWithTabsRef, IProps>(({
           viewabilityConfig={viewabilityConfig}
           ref={sectionListRef}
           onMomentumScrollEnd={handleMomentumScrollEnd}
+          renderSectionHeader={(props: any) => {
+            // Wrap the original renderSectionHeader to add layout measurement
+            const originalRender = (restProps as any).renderSectionHeader;
+            if (!originalRender) return null;
+
+            const sectionIndex = props.section.index;
+            return (
+              <View onLayout={(event: any) => handleSectionHeaderLayout(sectionIndex, event)}>
+                {originalRender(props)}
+              </View>
+            );
+          }}
+          renderItem={(props: any) => {
+            // Wrap the original renderItem to add layout measurement
+            const originalRender = (restProps as any).renderItem;
+            if (!originalRender) return null;
+
+            const sectionIndex = props.section.index;
+            const itemIndex = props.index || 0;
+            return (
+              <View onLayout={(event: any) => handleItemLayout(sectionIndex, itemIndex, event)}>
+                {originalRender(props)}
+              </View>
+            );
+          }}
         />
       </View>
     );
