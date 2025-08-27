@@ -66,34 +66,29 @@ const TabBar = React.forwardRef<TabBarRef, IProps>(({
   const getScrollAmount = React.useCallback(() => {
     const position = currentIndex;
     const pageOffset = 0;
-
     const containerWidth = WindowWidth;
-    const tabMeasurement = tabsMeasurementsRef.current[position];
 
-    if (!tabMeasurement || !tabContainerMeasurementsRef.current) {
+    const tabMeasurement = tabsMeasurementsRef.current[position];
+    const tabContainerMeasurements = tabContainerMeasurementsRef.current;
+
+    // Return early if measurements aren't available
+    if (!tabMeasurement || !tabContainerMeasurements) {
       return 0;
     }
 
+    // Default values for calculations
     const tabWidth = tabMeasurement.width;
-    const nextTabMeasurements = tabsMeasurementsRef.current[position + 1];
-    const nextTabWidth = (nextTabMeasurements && nextTabMeasurements.width) || 0;
+    const nextTabWidth = tabsMeasurementsRef.current[position + 1]?.width || 0;
     const tabOffset = tabMeasurement.left;
     const absolutePageOffset = pageOffset * tabWidth;
+
     let newScrollX = tabOffset + absolutePageOffset;
+    newScrollX -= (containerWidth - (1 - pageOffset) * tabWidth - pageOffset * nextTabWidth) / 2;
 
-    newScrollX -=
-      (containerWidth -
-        (1 - pageOffset) * tabWidth -
-        pageOffset * nextTabWidth) /
-      2;
-    newScrollX = newScrollX >= 0 ? newScrollX : 0;
+    // Ensure scroll position is within bounds
+    const rightBoundScroll = Math.max(tabContainerMeasurements.width - containerWidth, 0);
+    newScrollX = Math.max(0, Math.min(newScrollX, rightBoundScroll));
 
-    const rightBoundScroll = Math.max(
-      tabContainerMeasurementsRef.current.width - containerWidth,
-      0
-    );
-
-    newScrollX = newScrollX > rightBoundScroll ? rightBoundScroll : newScrollX;
     return newScrollX;
   }, [currentIndex]);
 

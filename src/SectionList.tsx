@@ -86,8 +86,6 @@ const SectionList = React.forwardRef<SectionListWithTabsRef, IProps>(({
       debounceTimerRef.current = setTimeout(() => {
         // Check if all measurements are complete
         const totalSections = sections.length;
-        const totalItems = sections.reduce((sum, section) => sum + section.data.length, 0);
-        const { headers, items } = measurementsCountRef.current;
 
         // Check if all sections have both header measurements and complete item measurements
         let allMeasurementsComplete = true;
@@ -95,14 +93,14 @@ const SectionList = React.forwardRef<SectionListWithTabsRef, IProps>(({
 
         for (let i = 0; i < totalSections; i++) {
           const measurements = sectionMeasurementsRef.current[i];
-          if (measurements) {
-            hasAnyMeasurements = true;
-            // Check if header is measured and all items in this section are measured
-            if (measurements.headerHeight <= 0 || measurements.itemHeights.length !== sections[i].data.length) {
-              allMeasurementsComplete = false;
-              break;
-            }
-          } else {
+          if (!measurements) {
+            allMeasurementsComplete = false;
+            break;
+          }
+
+          hasAnyMeasurements = true;
+          // Check if header is measured and all items in this section are measured
+          if (measurements.headerHeight <= 0 || measurements.itemHeights.length !== sections[i].data.length) {
             allMeasurementsComplete = false;
             break;
           }
@@ -119,28 +117,31 @@ const SectionList = React.forwardRef<SectionListWithTabsRef, IProps>(({
           let cumulativeHeight = 0;
           let hasAllMeasurements = true;
 
-          sections.forEach((section, index) => {
+          for (let index = 0; index < sections.length; index++) {
+            const section = sections[index];
             positions[index] = cumulativeHeight;
 
             const measurements = sectionMeasurementsRef.current[index];
+            // Default to estimated heights
+            let sectionHeaderHeight = 60;
+            let totalItemsHeight = section.data.length * (100 + 8); // Default estimate
+
+            // Mark as incomplete when using estimates (default condition)
+            hasAllMeasurements = false;
+
             if (measurements && measurements.headerHeight > 0 && measurements.itemHeights.length === section.data.length) {
               // Use actual measured heights
-              const sectionHeaderHeight = measurements.headerHeight;
-              const totalItemsHeight = measurements.itemHeights.reduce((sum, height) => {
+              sectionHeaderHeight = measurements.headerHeight;
+              totalItemsHeight = measurements.itemHeights.reduce((sum, height) => {
                 // Add item height plus margin (assuming 8px margin as before)
                 return sum + height + 8;
               }, 0);
-
-              cumulativeHeight += sectionHeaderHeight + totalItemsHeight;
-            } else {
-              // Fallback to estimated heights if measurements aren't complete
-              hasAllMeasurements = false;
-              const sectionHeaderHeight = 60;
-              const estimatedItemHeight = 100; // Default estimate
-              const totalItemsHeight = section.data.length * (estimatedItemHeight + 8);
-              cumulativeHeight += sectionHeaderHeight + totalItemsHeight;
+              // Mark as complete when using actual measurements
+              hasAllMeasurements = true;
             }
-          });
+
+            cumulativeHeight += sectionHeaderHeight + totalItemsHeight;
+          }
 
           sectionPositionsRef.current = positions;
 
@@ -194,6 +195,100 @@ const SectionList = React.forwardRef<SectionListWithTabsRef, IProps>(({
         }
       }, 100); // 100ms debounce - increased to allow more measurements to complete
     }, [sections, onSectionsReady]);
+
+    // Helper function to perform scroll with retry mechanism
+    const performScrollToSection = React.useCallback((
+      sectionIndex: number,
+      retryOptions?: { maxRetries?: number; timeoutMs?: number; retryDelayMs?: number }
+    ) => {
+      const {
+        maxRetries = sectionIndex + 1,
+        timeoutMs = 1000,
+        retryDelayMs = 50
+      } = retryOptions || {};
+
+      const performScroll = (attemptCount = 0) => {
+        const sectionList = sectionListRef.current;
+        if (!sectionList) return;
+
+        // Check if the target section has been measured
+        const sectionMeasurements = sectionMeasurementsRef.current[sectionIndex];
+        const hasSectionMeasurements = sectionMeasurements && sectionMeasurements.headerHeight > 0;
+
+        let targetY = sectionPositionsRef.current[sectionIndex] || 0;
+
+        if (hasSectionMeasurements) {
+          // Section has been measured, scroll to it immediately
+          targetY += sectionMeasurements.headerHeight;
+
+          // Get the scroll responder and scroll directly
+          const scrollResponder = sectionList.getScrollResponder?.();
+          if (scrollResponder && scrollResponder.scrollTo) {
+            scrollResponder.scrollTo({
+              x: 0,
+              y: targetY,
+              animated: true,
+            });
+          }
+          return;
+        }
+
+        // Section hasn't been measured yet, calculate estimated position
+        for (let i = 0; i < sectionIndex; i++) {
+          const measurements = sectionMeasurementsRef.current[i];
+          // Use estimates for unmeasured sections (default condition)
+          targetY += 60; // estimated header height
+          targetY += sections[i].data.length * (100 + 8); // estimated item height + margin
+
+          if (measurements && measurements.headerHeight > 0 && measurements.itemHeights.length === sections[i].data.length) {
+            // Use actual measurements for previous sections
+            targetY -= 60; // subtract the estimated header height
+            targetY -= sections[i].data.length * (100 + 8); // subtract the estimated item heights
+            targetY += measurements.headerHeight;
+            targetY += measurements.itemHeights.reduce((sum, height) => sum + height + 8, 0);
+          }
+        }
+
+        // Add estimated header height for target section
+        targetY += 60;
+
+        // Store for potential adjustment when more measurements come in
+        if (!pendingScrollQueueRef.current.includes(sectionIndex)) {
+          pendingScrollQueueRef.current.push(sectionIndex);
+        }
+
+        // Trigger position calculation to get more accurate measurements
+        calculateSectionPositions();
+
+        // Get the scroll responder and scroll directly
+        const scrollResponder = sectionList.getScrollResponder?.();
+        if (scrollResponder && scrollResponder.scrollTo) {
+          scrollResponder.scrollTo({
+            x: 0,
+            y: targetY,
+            animated: true,
+          });
+        }
+
+        // If we haven't reached max retries and timeout hasn't expired, retry
+        if (!hasSectionMeasurements && attemptCount < maxRetries) {
+          const delay = retryDelayMs * Math.pow(2, attemptCount); // Exponential backoff
+          setTimeout(() => {
+            performScroll(attemptCount + 1);
+          }, delay);
+        }
+      };
+
+      // Start the scroll attempt with timeout
+      performScroll();
+
+      // Set up a timeout to force final scroll attempt
+      if (timeoutMs > 0) {
+        setTimeout(() => {
+          performScroll(maxRetries);
+        }, timeoutMs);
+      }
+    }, [sections, calculateSectionPositions]);
 
     // Reset measurements when sections change
     React.useEffect(() => {
@@ -271,96 +366,9 @@ const SectionList = React.forwardRef<SectionListWithTabsRef, IProps>(({
         getNativeScrollRef: () => (tabBarRef.current?.getNativeScrollRef() as any),
       },
       scrollToSection: (index: number, retryOptions?: { maxRetries?: number; timeoutMs?: number; retryDelayMs?: number }) => {
-        const {
-          maxRetries = index + 1,
-          timeoutMs = 1000,
-          retryDelayMs = 50
-        } = retryOptions || {};
-
-        const performScroll = (attemptCount = 0) => {
-          const sectionList = sectionListRef.current;
-          if (!sectionList) return;
-
-          // Check if the target section has been measured
-          const sectionMeasurements = sectionMeasurementsRef.current[index];
-          const hasSectionMeasurements = sectionMeasurements && sectionMeasurements.headerHeight > 0;
-
-          if (hasSectionMeasurements) {
-            // Section has been measured, scroll to it immediately
-            let targetY = sectionPositionsRef.current[index] || 0;
-
-            // Adjust to show the first item instead of the header
-            targetY += sectionMeasurements.headerHeight;
-
-            // Get the scroll responder and scroll directly
-            const scrollResponder = sectionList.getScrollResponder?.();
-            if (scrollResponder && scrollResponder.scrollTo) {
-              scrollResponder.scrollTo({
-                x: 0,
-                y: targetY,
-                animated: true,
-              });
-            }
-          } else {
-            // Section hasn't been measured yet, use estimated position
-
-            // Calculate estimated position based on measured sections
-            let estimatedY = 0;
-            for (let i = 0; i < index; i++) {
-              const measurements = sectionMeasurementsRef.current[i];
-              if (measurements && measurements.headerHeight > 0 && measurements.itemHeights.length === sections[i].data.length) {
-                // Use actual measurements for previous sections
-                estimatedY += measurements.headerHeight;
-                estimatedY += measurements.itemHeights.reduce((sum, height) => sum + height + 8, 0);
-              } else {
-                // Use estimates for unmeasured sections
-                estimatedY += 60; // estimated header height
-                estimatedY += sections[i].data.length * (100 + 8); // estimated item height + margin
-              }
-            }
-
-            // Add estimated header height for target section
-            estimatedY += 60;
-
-            // Scroll to estimated position
-            const scrollResponder = sectionList.getScrollResponder?.();
-            if (scrollResponder && scrollResponder.scrollTo) {
-              scrollResponder.scrollTo({
-                x: 0,
-                y: estimatedY,
-                animated: true,
-              });
-            }
-
-            // Store for potential adjustment when more measurements come in
-            if (!pendingScrollQueueRef.current.includes(index)) {
-              pendingScrollQueueRef.current.push(index);
-            }
-
-            // Trigger position calculation to get more accurate measurements
-            calculateSectionPositions();
-
-            // If we haven't reached max retries and timeout hasn't expired, retry
-            if (attemptCount < maxRetries) {
-              const delay = retryDelayMs * Math.pow(2, attemptCount); // Exponential backoff
-              setTimeout(() => {
-                performScroll(attemptCount + 1);
-              }, delay);
-            }
-          }
-        };
-
-        // Start the scroll attempt with timeout
-        performScroll();
-
-        // Set up a timeout to force final scroll attempt
-        if (timeoutMs > 0) {
-          setTimeout(() => {
-            performScroll(maxRetries);
-          }, timeoutMs);
-        }
+        performScrollToSection(index, retryOptions);
       }
-    }), [sections, calculateSectionPositions]);
+    }), [sections, calculateSectionPositions, performScrollToSection]);
 
     const handleTabPress = React.useCallback(
       (index: number) => {
@@ -368,102 +376,10 @@ const SectionList = React.forwardRef<SectionListWithTabsRef, IProps>(({
         setCurrentIndex(index);
         blockUpdateIndexRef.current = true;
 
-        // Use the same scrollToSection method with retry mechanism
-        const scrollToSection = (index: number, retryOptions?: { maxRetries?: number; timeoutMs?: number; retryDelayMs?: number }) => {
-          const {
-            maxRetries = index + 1,
-            timeoutMs = 1000,
-                      retryDelayMs = 50
-        } = retryOptions || {};
-
-          const performScroll = (attemptCount = 0) => {
-            const sectionList = sectionListRef.current;
-            if (!sectionList) return;
-
-            // Check if the target section has been measured
-            const sectionMeasurements = sectionMeasurementsRef.current[index];
-            const hasSectionMeasurements = sectionMeasurements && sectionMeasurements.headerHeight > 0;
-
-            if (hasSectionMeasurements) {
-              // Section has been measured, scroll to it immediately
-              let targetY = sectionPositionsRef.current[index] || 0;
-
-              // Adjust to show the first item instead of the header
-              targetY += sectionMeasurements.headerHeight;
-
-              // Get the scroll responder and scroll directly
-              const scrollResponder = sectionList.getScrollResponder?.();
-              if (scrollResponder && scrollResponder.scrollTo) {
-                scrollResponder.scrollTo({
-                  x: 0,
-                  y: targetY,
-                  animated: true,
-                });
-              }
-            } else {
-              // Section hasn't been measured yet, use estimated position
-
-              // Calculate estimated position based on measured sections
-              let estimatedY = 0;
-              for (let i = 0; i < index; i++) {
-                const measurements = sectionMeasurementsRef.current[i];
-                if (measurements && measurements.headerHeight > 0 && measurements.itemHeights.length === sections[i].data.length) {
-                  // Use actual measurements for previous sections
-                  estimatedY += measurements.headerHeight;
-                  estimatedY += measurements.itemHeights.reduce((sum, height) => sum + height + 8, 0);
-                } else {
-                  // Use estimates for unmeasured sections
-                  estimatedY += 60; // estimated header height
-                  estimatedY += sections[i].data.length * (100 + 8); // estimated item height + margin
-                }
-              }
-
-              // Add estimated header height for target section
-              estimatedY += 60;
-
-              // Scroll to estimated position
-              const scrollResponder = sectionList.getScrollResponder?.();
-              if (scrollResponder && scrollResponder.scrollTo) {
-                scrollResponder.scrollTo({
-                  x: 0,
-                  y: estimatedY,
-                  animated: true,
-                });
-              }
-
-              // Store for potential adjustment when more measurements come in
-              if (!pendingScrollQueueRef.current.includes(index)) {
-                pendingScrollQueueRef.current.push(index);
-              }
-
-              // Trigger position calculation to get more accurate measurements
-              calculateSectionPositions();
-
-              // If we haven't reached max retries and timeout hasn't expired, retry
-              if (attemptCount < maxRetries) {
-                const delay = retryDelayMs * Math.pow(2, attemptCount); // Exponential backoff
-                setTimeout(() => {
-                  performScroll(attemptCount + 1);
-                }, delay);
-              }
-            }
-          };
-
-          // Start the scroll attempt with timeout
-          performScroll();
-
-          // Set up a timeout to force final scroll attempt
-          if (timeoutMs > 0) {
-            setTimeout(() => {
-              performScroll(maxRetries);
-            }, timeoutMs);
-          }
-        };
-
-        // Call scrollToSection with default retry options
-        scrollToSection(index);
+        // Use the shared scroll function with default retry options
+        performScrollToSection(index);
       },
-      [sections, calculateSectionPositions]
+      [performScrollToSection]
     );
 
     const handleViewableItemsChanged = React.useCallback(
@@ -512,7 +428,9 @@ const SectionList = React.forwardRef<SectionListWithTabsRef, IProps>(({
           renderSectionHeader={(props: any) => {
             // Wrap the original renderSectionHeader to add layout measurement
             const originalRender = (restProps as any).renderSectionHeader;
-            if (!originalRender) return null;
+            if (!originalRender) {
+              return null;
+            }
 
             const sectionIndex = props.section.index;
             return (
@@ -524,7 +442,9 @@ const SectionList = React.forwardRef<SectionListWithTabsRef, IProps>(({
           renderItem={(props: any) => {
             // Wrap the original renderItem to add layout measurement
             const originalRender = (restProps as any).renderItem;
-            if (!originalRender) return null;
+            if (!originalRender) {
+              return null;
+            }
 
             const sectionIndex = props.section.index;
             const itemIndex = props.index || 0;
