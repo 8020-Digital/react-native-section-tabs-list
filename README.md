@@ -1,15 +1,21 @@
-# React Native Section Tabs  List
+# React Native Section Tabs List
 
 [![npm version](https://badge.fury.io/js/react-native-section-tabs-list.svg)](https://badge.fury.io/js/react-native-section-tabs-list)
+[![npm](https://img.shields.io/npm/v/react-native-section-tabs-list.svg)](https://www.npmjs.com/package/react-native-section-tabs-list)
+[![npm](https://img.shields.io/npm/dt/react-native-section-tabs-list.svg)](https://www.npmjs.com/package/react-native-section-tabs-list)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A beautiful, performant React Native component that combines section lists with scrollable tabs. Perfect for creating organized content with smooth navigation between different categories.
+
+> 📦 **Now available on npm!** Install with `npm install react-native-section-tabs-list`
 
 <div align="center">
 
 ![Demo](demo.gif)
 
 *Smooth scrolling between sections with dynamic tab highlighting*
+
+### 🚀 [View on npm](https://www.npmjs.com/package/react-native-section-tabs-list) • 📋 [GitHub Repository](https://github.com/8020-Digital/react-native-section-tabs-list) • 📖 [Documentation](#-api-reference)
 
 </div>
 
@@ -35,6 +41,22 @@ or with yarn:
 ```bash
 yarn add react-native-section-tabs-list
 ```
+
+## ⚡ Getting Started
+
+1. **Install the package**:
+
+   ```bash
+   npm install react-native-section-tabs-list
+   ```
+
+2. **Import and use**:
+
+   ```tsx
+   import SectionList from 'react-native-section-tabs-list';
+   ```
+
+3. **That's it!** No linking or additional setup required for React Native 0.60+
 
 ## 🚀 Quick Start
 
@@ -391,9 +413,54 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+## 🐛 Issues & Support
+
+- **Bug Reports**: [GitHub Issues](https://github.com/8020-Digital/react-native-section-tabs-list/issues)
+- **Feature Requests**: [GitHub Discussions](https://github.com/8020-Digital/react-native-section-tabs-list/discussions)
+- **Questions**: [Stack Overflow](https://stackoverflow.com/questions/tagged/react-native-section-tabs-list) with tag `react-native-section-tabs-list`
+
+When reporting issues, please include:
+
+- React Native version
+- Package version
+- Platform (iOS/Android)
+- Code example that reproduces the issue
+
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) file for details.
+
+## 📊 Package Statistics
+
+<div align="center">
+
+[![npm](https://img.shields.io/npm/v/react-native-section-tabs-list.svg?style=for-the-badge)](https://www.npmjs.com/package/react-native-section-tabs-list)
+[![npm downloads](https://img.shields.io/npm/dm/react-native-section-tabs-list.svg?style=for-the-badge)](https://www.npmjs.com/package/react-native-section-tabs-list)
+[![GitHub stars](https://img.shields.io/github/stars/8020-Digital/react-native-section-tabs-list.svg?style=for-the-badge)](https://github.com/8020-Digital/react-native-section-tabs-list)
+
+</div>
+
+## 📦 Package Information
+
+- **Package Name**: [`react-native-section-tabs-list`](https://www.npmjs.com/package/react-native-section-tabs-list)
+- **Version**: 0.0.1
+- **Bundle Size**: ~4.0 MB (includes demo assets)
+- **Dependencies**: None (peer dependencies: React Native >=0.60.0)
+- **TypeScript**: Full TypeScript support with type definitions
+
+## 📝 Release Notes
+
+### v0.0.1 (Latest)
+
+- 🎉 **Initial Release**
+- ✨ **11 Section Types**: People, Products, Companies, Posts, Books, Movies, Restaurants, Events, Locations, Tasks, Messages
+- 🎯 **Smart Scrolling**: Dynamic height calculation based on actual content
+- 📱 **Responsive Tabs**: Horizontally scrollable tab bar with active states  
+- ⚡ **High Performance**: Optimized for large datasets
+- 🎲 **Random Navigation**: Built-in random section scrolling on mount
+- 📐 **Dynamic Positioning**: Automatic section height calculation
+- 🔧 **Programmatic Control**: Full API for external scroll control
+- 🎨 **Beautiful Demo**: Includes comprehensive example with 11 content types
 
 ## 🙏 Acknowledgments
 
@@ -406,3 +473,23 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) f
 **Made with ❤️ by [Pedro Goiania](https://github.com/pedrogoiania)**
 
 [![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-☕-orange)](https://buymeacoffee.com/pedrogoiania)
+
+### 📢 Spread the Word
+
+If you find this package useful, please:
+
+- ⭐ Star the [GitHub repository](https://github.com/8020-Digital/react-native-section-tabs-list)
+- 📦 Leave a review on [npm](https://www.npmjs.com/package/react-native-section-tabs-list)
+- 🐦 Share it with the React Native community
+
+### 🔮 What's Next?
+
+We're continuously working to improve this package. Upcoming features:
+
+- 🎨 More customization options for tab styles
+- 📊 Built-in analytics and usage tracking
+- 🎪 Additional animation effects
+- 🔄 Pull-to-refresh functionality
+- 📱 Better accessibility support
+
+**Want to contribute?** Check out our [open issues](https://github.com/8020-Digital/react-native-section-tabs-list/issues) or suggest new features!
