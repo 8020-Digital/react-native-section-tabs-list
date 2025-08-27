@@ -1,5 +1,12 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Pressable,
+  ScrollView
+} from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 
 import { faker } from '@faker-js/faker';
@@ -20,8 +27,8 @@ const generateFakeData = () => {
         name: faker.person.fullName(),
         email: faker.internet.email(),
         avatar: faker.image.avatar(),
-        job: faker.person.jobTitle(),
-      })),
+        job: faker.person.jobTitle()
+      }))
     },
     {
       title: 'Products',
@@ -30,8 +37,8 @@ const generateFakeData = () => {
         name: faker.commerce.productName(),
         price: faker.commerce.price(),
         description: faker.commerce.productDescription(),
-        category: faker.commerce.department(),
-      })),
+        category: faker.commerce.department()
+      }))
     },
     {
       title: 'Companies',
@@ -40,8 +47,8 @@ const generateFakeData = () => {
         name: faker.company.name(),
         catchPhrase: faker.company.catchPhrase(),
         industry: faker.company.buzzPhrase(),
-        address: `${faker.location.streetAddress()}, ${faker.location.city()}`,
-      })),
+        address: `${faker.location.streetAddress()}, ${faker.location.city()}`
+      }))
     },
     {
       title: 'Posts',
@@ -50,8 +57,8 @@ const generateFakeData = () => {
         title: faker.lorem.sentence(),
         body: faker.lorem.paragraphs(2),
         author: faker.person.fullName(),
-        date: faker.date.recent().toLocaleDateString(),
-      })),
+        date: faker.date.recent().toLocaleDateString()
+      }))
     },
     {
       title: 'Books',
@@ -59,10 +66,18 @@ const generateFakeData = () => {
         id: `book-${index}`,
         title: faker.lorem.words(3),
         author: faker.person.fullName(),
-        genre: faker.helpers.arrayElement(['Fiction', 'Mystery', 'Romance', 'Sci-Fi', 'Biography']),
+        genre: faker.helpers.arrayElement([
+          'Fiction',
+          'Mystery',
+          'Romance',
+          'Sci-Fi',
+          'Biography'
+        ]),
         pages: faker.number.int({ min: 200, max: 800 }),
-        rating: (faker.number.float({ min: 3, max: 5, multipleOf: 0.1 })).toFixed(1),
-      })),
+        rating: faker.number
+          .float({ min: 3, max: 5, multipleOf: 0.1 })
+          .toFixed(1)
+      }))
     },
     {
       title: 'Movies',
@@ -70,32 +85,65 @@ const generateFakeData = () => {
         id: `movie-${index}`,
         title: faker.lorem.words(2),
         director: faker.person.fullName(),
-        genre: faker.helpers.arrayElement(['Action', 'Comedy', 'Drama', 'Horror', 'Romance', 'Thriller']),
-        year: faker.date.between({ from: '1990-01-01', to: '2024-01-01' }).getFullYear(),
-        rating: (faker.number.float({ min: 6, max: 10, multipleOf: 0.1 })).toFixed(1),
-      })),
+        genre: faker.helpers.arrayElement([
+          'Action',
+          'Comedy',
+          'Drama',
+          'Horror',
+          'Romance',
+          'Thriller'
+        ]),
+        year: faker.date
+          .between({ from: '1990-01-01', to: '2024-01-01' })
+          .getFullYear(),
+        rating: faker.number
+          .float({ min: 6, max: 10, multipleOf: 0.1 })
+          .toFixed(1)
+      }))
     },
     {
       title: 'Restaurants',
       data: Array.from({ length: 16 }, (_, index) => ({
         id: `restaurant-${index}`,
-        name: `${faker.lorem.word()} ${faker.helpers.arrayElement(['Bistro', 'Cafe', 'Grill', 'Kitchen', 'House'])}`,
-        cuisine: faker.helpers.arrayElement(['Italian', 'Mexican', 'Chinese', 'Indian', 'French', 'Japanese']),
-        rating: (faker.number.float({ min: 3.5, max: 5, multipleOf: 0.1 })).toFixed(1),
+        name: `${faker.lorem.word()} ${faker.helpers.arrayElement([
+          'Bistro',
+          'Cafe',
+          'Grill',
+          'Kitchen',
+          'House'
+        ])}`,
+        cuisine: faker.helpers.arrayElement([
+          'Italian',
+          'Mexican',
+          'Chinese',
+          'Indian',
+          'French',
+          'Japanese'
+        ]),
+        rating: faker.number
+          .float({ min: 3.5, max: 5, multipleOf: 0.1 })
+          .toFixed(1),
         address: `${faker.location.streetAddress()}, ${faker.location.city()}`,
-        priceRange: faker.helpers.arrayElement(['$', '$$', '$$$', '$$$$']),
-      })),
+        priceRange: faker.helpers.arrayElement(['$', '$$', '$$$', '$$$$'])
+      }))
     },
     {
       title: 'Events',
       data: Array.from({ length: 14 }, (_, index) => ({
         id: `event-${index}`,
         name: faker.lorem.words(3),
-        type: faker.helpers.arrayElement(['Conference', 'Workshop', 'Concert', 'Festival', 'Meetup', 'Seminar']),
+        type: faker.helpers.arrayElement([
+          'Conference',
+          'Workshop',
+          'Concert',
+          'Festival',
+          'Meetup',
+          'Seminar'
+        ]),
         date: faker.date.future().toLocaleDateString(),
         location: faker.location.city(),
-        attendees: faker.number.int({ min: 10, max: 500 }),
-      })),
+        attendees: faker.number.int({ min: 10, max: 500 })
+      }))
     },
     {
       title: 'Locations',
@@ -103,10 +151,18 @@ const generateFakeData = () => {
         id: `location-${index}`,
         name: faker.location.city(),
         country: faker.location.country(),
-        population: faker.number.int({ min: 10000, max: 5000000 }).toLocaleString(),
-        climate: faker.helpers.arrayElement(['Tropical', 'Temperate', 'Arid', 'Continental', 'Mediterranean']),
-        attraction: faker.lorem.words(2),
-      })),
+        population: faker.number
+          .int({ min: 10000, max: 5000000 })
+          .toLocaleString(),
+        climate: faker.helpers.arrayElement([
+          'Tropical',
+          'Temperate',
+          'Arid',
+          'Continental',
+          'Mediterranean'
+        ]),
+        attraction: faker.lorem.words(2)
+      }))
     },
     {
       title: 'Tasks',
@@ -114,10 +170,15 @@ const generateFakeData = () => {
         id: `task-${index}`,
         title: faker.lorem.sentence(4),
         priority: faker.helpers.arrayElement(['High', 'Medium', 'Low']),
-        status: faker.helpers.arrayElement(['Todo', 'In Progress', 'Done', 'Blocked']),
+        status: faker.helpers.arrayElement([
+          'Todo',
+          'In Progress',
+          'Done',
+          'Blocked'
+        ]),
         assignee: faker.person.fullName(),
-        dueDate: faker.date.future().toLocaleDateString(),
-      })),
+        dueDate: faker.date.future().toLocaleDateString()
+      }))
     },
     {
       title: 'Messages',
@@ -127,32 +188,57 @@ const generateFakeData = () => {
         subject: faker.lorem.words(5),
         preview: faker.lorem.sentence(),
         timestamp: faker.date.recent().toLocaleTimeString(),
-        unread: faker.datatype.boolean(),
-      })),
-    },
+        unread: faker.datatype.boolean()
+      }))
+    }
   ];
   return sections;
 };
 
 function HomeScreen() {
-  const sections = generateFakeData();
+  const sectionsRef = React.useRef<any[]>(null);
+
+  const sections = React.useMemo(() => {
+    if (!sectionsRef.current) {
+      const data = generateFakeData();
+      sectionsRef.current = data;
+      console.log(
+        'Generated sections data:',
+        data.map((s) => `${s.title}: ${s.data.length} items`)
+      );
+    }
+    return sectionsRef.current;
+  }, []);
+
   const sectionListRef = React.useRef<SectionListWithTabsRef>(null);
+  const [clickCount, setClickCount] = React.useState(0);
 
   // Scroll to random tab when screen opens
   React.useEffect(() => {
-    if (sectionListRef.current) {
-      // Generate random index (0 to sections.length - 1)
-      const randomIndex = Math.floor(Math.random() * sections.length + 1);
-      
-      // Use the new scrollToSection method with dynamic positions
-      sectionListRef.current.scrollToSection(randomIndex);
-    }
+    // if (sectionListRef.current) {
+    //   // Generate random index (0 to sections.length - 1)
+    //   // const randomIndex = Math.floor(Math.random() * sections.length + 1);
+    //   const randomIndex = 5;
+    //   // Add delay to ensure positions are calculated before scrolling
+    //   setTimeout(() => {
+    //     console.log('Scrolling to section:', randomIndex);
+    //     sectionListRef.current.scrollToSection(randomIndex);
+    //   }, 1000);
+    // }
   }, [sections.length]);
 
-  const renderTab = (section: Section & { isActive?: boolean; index?: number }) => (
+  const renderTab = (
+    section: Section & { isActive?: boolean; index?: number }
+  ) => (
     <View style={[styles.tab, section.isActive && styles.activeTab]}>
-      <Text style={[styles.tabText, section.isActive && styles.activeTabText]}>{section.title}</Text>
-      <Text style={[styles.tabCount, section.isActive && styles.activeTabCount]}>({section.data.length})</Text>
+      <Text style={[styles.tabText, section.isActive && styles.activeTabText]}>
+        {section.title}
+      </Text>
+      <Text
+        style={[styles.tabCount, section.isActive && styles.activeTabCount]}
+      >
+        ({section.data.length})
+      </Text>
     </View>
   );
 
@@ -175,7 +261,7 @@ function HomeScreen() {
             <Text style={styles.itemDetail}>{item.email}</Text>
           </TouchableOpacity>
         );
-      
+
       case 'Products':
         return (
           <TouchableOpacity style={styles.itemContainer}>
@@ -184,10 +270,12 @@ function HomeScreen() {
               <Text style={styles.itemPrice}>${item.price}</Text>
             </View>
             <Text style={styles.itemSubtitle}>{item.category}</Text>
-            <Text style={styles.itemDetail} numberOfLines={2}>{item.description}</Text>
+            <Text style={styles.itemDetail} numberOfLines={2}>
+              {item.description}
+            </Text>
           </TouchableOpacity>
         );
-      
+
       case 'Companies':
         return (
           <TouchableOpacity style={styles.itemContainer}>
@@ -198,16 +286,20 @@ function HomeScreen() {
             <Text style={styles.itemDetail}>{item.address}</Text>
           </TouchableOpacity>
         );
-      
+
       case 'Posts':
         return (
           <TouchableOpacity style={styles.itemContainer}>
             <View style={styles.itemHeader}>
-              <Text style={styles.itemTitle} numberOfLines={1}>{item.title}</Text>
+              <Text style={styles.itemTitle} numberOfLines={1}>
+                {item.title}
+              </Text>
               <Text style={styles.itemDate}>{item.date}</Text>
             </View>
             <Text style={styles.itemSubtitle}>By {item.author}</Text>
-            <Text style={styles.itemDetail} numberOfLines={3}>{item.body}</Text>
+            <Text style={styles.itemDetail} numberOfLines={3}>
+              {item.body}
+            </Text>
           </TouchableOpacity>
         );
 
@@ -215,7 +307,9 @@ function HomeScreen() {
         return (
           <TouchableOpacity style={styles.itemContainer}>
             <View style={styles.itemHeader}>
-              <Text style={styles.itemTitle} numberOfLines={1}>{item.title}</Text>
+              <Text style={styles.itemTitle} numberOfLines={1}>
+                {item.title}
+              </Text>
               <Text style={styles.itemRating}>⭐ {item.rating}</Text>
             </View>
             <Text style={styles.itemSubtitle}>By {item.author}</Text>
@@ -230,7 +324,9 @@ function HomeScreen() {
         return (
           <TouchableOpacity style={styles.itemContainer}>
             <View style={styles.itemHeader}>
-              <Text style={styles.itemTitle} numberOfLines={1}>{item.title}</Text>
+              <Text style={styles.itemTitle} numberOfLines={1}>
+                {item.title}
+              </Text>
               <Text style={styles.itemYear}>{item.year}</Text>
             </View>
             <Text style={styles.itemSubtitle}>Directed by {item.director}</Text>
@@ -245,14 +341,18 @@ function HomeScreen() {
         return (
           <TouchableOpacity style={styles.itemContainer}>
             <View style={styles.itemHeader}>
-              <Text style={styles.itemTitle} numberOfLines={1}>{item.name}</Text>
+              <Text style={styles.itemTitle} numberOfLines={1}>
+                {item.name}
+              </Text>
               <Text style={styles.itemPriceRange}>{item.priceRange}</Text>
             </View>
             <View style={styles.itemDetailsRow}>
               <Text style={styles.itemGenre}>{item.cuisine}</Text>
               <Text style={styles.itemRating}>⭐ {item.rating}</Text>
             </View>
-            <Text style={styles.itemDetail} numberOfLines={1}>{item.address}</Text>
+            <Text style={styles.itemDetail} numberOfLines={1}>
+              {item.address}
+            </Text>
           </TouchableOpacity>
         );
 
@@ -260,10 +360,14 @@ function HomeScreen() {
         return (
           <TouchableOpacity style={styles.itemContainer}>
             <View style={styles.itemHeader}>
-              <Text style={styles.itemTitle} numberOfLines={1}>{item.name}</Text>
+              <Text style={styles.itemTitle} numberOfLines={1}>
+                {item.name}
+              </Text>
               <Text style={styles.itemEventType}>{item.type}</Text>
             </View>
-            <Text style={styles.itemSubtitle}>{item.location} • {item.date}</Text>
+            <Text style={styles.itemSubtitle}>
+              {item.location} • {item.date}
+            </Text>
             <Text style={styles.itemDetail}>{item.attendees} attendees</Text>
           </TouchableOpacity>
         );
@@ -272,7 +376,9 @@ function HomeScreen() {
         return (
           <TouchableOpacity style={styles.itemContainer}>
             <View style={styles.itemHeader}>
-              <Text style={styles.itemTitle} numberOfLines={1}>{item.name}</Text>
+              <Text style={styles.itemTitle} numberOfLines={1}>
+                {item.name}
+              </Text>
               <Text style={styles.itemClimate}>{item.climate}</Text>
             </View>
             <Text style={styles.itemSubtitle}>{item.country}</Text>
@@ -287,11 +393,24 @@ function HomeScreen() {
         return (
           <TouchableOpacity style={styles.itemContainer}>
             <View style={styles.itemHeader}>
-              <Text style={styles.itemTitle} numberOfLines={2}>{item.title}</Text>
-              <Text style={[styles.itemPriority, { 
-                color: item.priority === 'High' ? '#ff4444' : 
-                       item.priority === 'Medium' ? '#ffaa00' : '#00aa00' 
-              }]}>{item.priority}</Text>
+              <Text style={styles.itemTitle} numberOfLines={2}>
+                {item.title}
+              </Text>
+              <Text
+                style={[
+                  styles.itemPriority,
+                  {
+                    color:
+                      item.priority === 'High'
+                        ? '#ff4444'
+                        : item.priority === 'Medium'
+                        ? '#ffaa00'
+                        : '#00aa00'
+                  }
+                ]}
+              >
+                {item.priority}
+              </Text>
             </View>
             <View style={styles.itemDetailsRow}>
               <Text style={styles.itemStatus}>{item.status}</Text>
@@ -303,18 +422,29 @@ function HomeScreen() {
 
       case 'Messages':
         return (
-          <TouchableOpacity style={[styles.itemContainer, item.unread && styles.unreadMessage]}>
+          <TouchableOpacity
+            style={[styles.itemContainer, item.unread && styles.unreadMessage]}
+          >
             <View style={styles.itemHeader}>
-              <Text style={[styles.itemTitle, item.unread && styles.unreadText]} numberOfLines={1}>
+              <Text
+                style={[styles.itemTitle, item.unread && styles.unreadText]}
+                numberOfLines={1}
+              >
                 {item.subject}
               </Text>
               <Text style={styles.itemTimestamp}>{item.timestamp}</Text>
             </View>
-            <Text style={[styles.itemSubtitle, item.unread && styles.unreadText]}>From: {item.sender}</Text>
-            <Text style={styles.itemDetail} numberOfLines={1}>{item.preview}</Text>
+            <Text
+              style={[styles.itemSubtitle, item.unread && styles.unreadText]}
+            >
+              From: {item.sender}
+            </Text>
+            <Text style={styles.itemDetail} numberOfLines={1}>
+              {item.preview}
+            </Text>
           </TouchableOpacity>
         );
-      
+
       default:
         return null;
     }
@@ -323,11 +453,156 @@ function HomeScreen() {
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
+
+      <ScrollView horizontal style={{ maxHeight: 150 }}>
+        <View style={{ gap: 10, flexDirection: 'column' }}>
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <Pressable
+              onPress={() => {
+                const newCount = clickCount + 1;
+                setClickCount(newCount);
+                console.log(
+                  `Click ${newCount}: Scrolling to section 5 (default retry)`
+                );
+                sectionListRef.current?.scrollToSection(5);
+              }}
+              style={[styles.tab, styles.activeTab]}
+            >
+              <Text
+                style={[
+                  styles.tabCount,
+                  styles.activeTabCount,
+                  { maxWidth: 120 }
+                ]}
+              >
+                {`Default Retry: Books (Index 5)`}
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => {
+                const newCount = clickCount + 1;
+                setClickCount(newCount);
+                console.log(
+                  `Click ${newCount}: Scrolling to section 5`
+                );
+                sectionListRef.current?.scrollToSection(5);
+              }}
+              style={[styles.tab, styles.activeTab]}
+            >
+              <Text
+                style={[
+                  styles.tabCount,
+                  styles.activeTabCount,
+                  { maxWidth: 120 }
+                ]}
+              >
+                {`Aggressive Retry: Books`}
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => {
+                const newCount = clickCount + 1;
+                setClickCount(newCount);
+                console.log(
+                  `Click ${newCount}: Scrolling to section 10 (fast retry)`
+                );
+                sectionListRef.current?.scrollToSection(10, {
+                  maxRetries: 2,
+                  timeoutMs: 1000,
+                  retryDelayMs: 100
+                });
+              }}
+              style={[styles.tab, styles.activeTab]}
+            >
+              <Text
+                style={[
+                  styles.tabCount,
+                  styles.activeTabCount,
+                  { maxWidth: 120 }
+                ]}
+              >
+                {`Fast Retry: Messages`}
+              </Text>
+            </Pressable>
+          </View>
+
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <Pressable
+              onPress={() => {
+                const newCount = clickCount + 1;
+                setClickCount(newCount);
+                console.log(`Click ${newCount}: Scrolling to section 0`);
+                sectionListRef.current?.scrollToSection(0);
+              }}
+              style={[styles.tab, styles.activeTab]}
+            >
+              <Text
+                style={[
+                  styles.tabCount,
+                  styles.activeTabCount,
+                  { maxWidth: 120 }
+                ]}
+              >
+                {`Scroll to People (Index 0)`}
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => {
+                const newCount = clickCount + 1;
+                setClickCount(newCount);
+                console.log(`Click ${newCount}: Scrolling to section 11`);
+                sectionListRef.current?.scrollToSection(11);
+              }}
+              style={[styles.tab, styles.activeTab]}
+            >
+              <Text
+                style={[
+                  styles.tabCount,
+                  styles.activeTabCount,
+                  { maxWidth: 120 }
+                ]}
+              >
+                {`Scroll to Messages (Index 11)`}
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => {
+                const newCount = clickCount + 1;
+                setClickCount(newCount);
+                console.log(
+                  `Click ${newCount}: Scrolling to section 5 (no retry)`
+                );
+                sectionListRef.current?.scrollToSection(5, {
+                  maxRetries: 0,
+                  timeoutMs: 0
+                });
+              }}
+              style={[styles.tab, styles.activeTab]}
+            >
+              <Text
+                style={[
+                  styles.tabCount,
+                  styles.activeTabCount,
+                  { maxWidth: 120 }
+                ]}
+              >
+                {`No Retry: Books`}
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      </ScrollView>
+
       <SectionList
         ref={sectionListRef}
         sections={sections}
         renderTab={renderTab}
         renderItem={renderItem}
+        stickySectionHeadersEnabled={false}
         renderSectionHeader={renderSectionHeader}
         tabBarStyle={styles.tabBar}
         keyExtractor={(item: any) => item.id}
@@ -340,13 +615,13 @@ function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f5f5f5'
   },
   tabBar: {
     backgroundColor: '#ffffff',
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
-    paddingVertical: 8,
+    paddingVertical: 8
   },
   tab: {
     paddingHorizontal: 16,
@@ -355,37 +630,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 8,
-    marginHorizontal: 4,
+    marginHorizontal: 4
   },
   activeTab: {
     backgroundColor: '#007AFF',
     shadowColor: '#007AFF',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 2
     },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: 4,
+    elevation: 4
   },
   tabText: {
     fontSize: 16,
     fontWeight: '600',
     color: '#333333',
-    marginRight: 4,
+    marginRight: 4
   },
   activeTabText: {
     color: '#FFFFFF',
-    fontWeight: '700',
+    fontWeight: '700'
   },
   tabCount: {
     fontSize: 14,
     color: '#666666',
-    fontWeight: '400',
+    fontWeight: '400'
   },
   activeTabCount: {
     color: '#E3F2FD',
-    fontWeight: '500',
+    fontWeight: '500'
   },
   sectionHeader: {
     backgroundColor: '#ffffff',
@@ -395,16 +670,16 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e0e0e0',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   sectionHeaderText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333333',
+    color: '#333333'
   },
   sectionHeaderCount: {
     fontSize: 14,
-    color: '#666666',
+    color: '#666666'
   },
   itemContainer: {
     backgroundColor: '#ffffff',
@@ -415,50 +690,50 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 1,
+      height: 1
     },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-    elevation: 2,
+    elevation: 2
   },
   itemHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 8,
+    marginBottom: 8
   },
   itemTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: '#333333',
     flex: 1,
-    marginRight: 8,
+    marginRight: 8
   },
   itemSubtitle: {
     fontSize: 14,
     color: '#666666',
-    marginBottom: 4,
+    marginBottom: 4
   },
   itemDetail: {
     fontSize: 14,
     color: '#888888',
-    lineHeight: 20,
+    lineHeight: 20
   },
   itemPrice: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#4CAF50',
+    color: '#4CAF50'
   },
   itemDate: {
     fontSize: 12,
     color: '#999999',
-    fontWeight: '500',
+    fontWeight: '500'
   },
   itemDetailsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 4,
+    marginTop: 4
   },
   itemGenre: {
     fontSize: 12,
@@ -467,22 +742,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 10,
-    fontWeight: '500',
+    fontWeight: '500'
   },
   itemRating: {
     fontSize: 12,
     color: '#ff8c00',
-    fontWeight: '600',
+    fontWeight: '600'
   },
   itemYear: {
     fontSize: 14,
     color: '#666666',
-    fontWeight: '500',
+    fontWeight: '500'
   },
   itemPriceRange: {
     fontSize: 16,
     color: '#4CAF50',
-    fontWeight: 'bold',
+    fontWeight: 'bold'
   },
   itemEventType: {
     fontSize: 12,
@@ -491,7 +766,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 10,
-    fontWeight: '500',
+    fontWeight: '500'
   },
   itemClimate: {
     fontSize: 12,
@@ -500,12 +775,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 10,
-    fontWeight: '500',
+    fontWeight: '500'
   },
   itemAttraction: {
     fontSize: 12,
     color: '#888888',
-    fontStyle: 'italic',
+    fontStyle: 'italic'
   },
   itemPriority: {
     fontSize: 12,
@@ -513,7 +788,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 8,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#f8f8f8'
   },
   itemStatus: {
     fontSize: 12,
@@ -522,22 +797,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 10,
-    fontWeight: '500',
+    fontWeight: '500'
   },
   itemTimestamp: {
     fontSize: 12,
     color: '#999999',
-    fontWeight: '400',
+    fontWeight: '400'
   },
   unreadMessage: {
     backgroundColor: '#f8f9ff',
     borderLeftWidth: 3,
-    borderLeftColor: '#007AFF',
+    borderLeftColor: '#007AFF'
   },
   unreadText: {
     fontWeight: '600',
-    color: '#000000',
-  },
+    color: '#000000'
+  }
 });
 
 export default HomeScreen;
