@@ -19,6 +19,7 @@ interface IProps {
   tabBarStyle?: ViewStyle | RegisteredStyle<ViewStyle>;
   currentIndex: number;
   onPress: (index: number) => void;
+  disabled?: boolean;
 }
 
 interface ITabMeasurements {
@@ -46,7 +47,8 @@ const TabBar = React.forwardRef<TabBarRef, IProps>(({
   renderTab,
   tabBarStyle,
   currentIndex,
-  onPress
+  onPress,
+  disabled = false
 }, ref) => {
   const scrollViewRef = React.useRef<ScrollView>(null);
   const tabContainerMeasurementsRef = React.useRef<LayoutRectangle | undefined>(undefined);
@@ -123,14 +125,15 @@ const TabBar = React.forwardRef<TabBarRef, IProps>(({
 
     return (
       <TouchableOpacity
-        onPress={() => onPress(key)}
+        onPress={() => !disabled && onPress(key)}
         key={key}
         onLayout={handleTabLayout(key)}
+        disabled={disabled}
       >
         {renderTab({ isActive, ...section })}
       </TouchableOpacity>
     );
-  }, [renderTab, onPress, currentIndex, handleTabLayout]);
+  }, [renderTab, onPress, currentIndex, handleTabLayout, disabled]);
 
   return (
     <View style={[{ width: WindowWidth }, tabBarStyle]}>
