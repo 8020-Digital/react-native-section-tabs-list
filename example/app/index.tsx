@@ -196,18 +196,9 @@ const generateFakeData = () => {
 };
 
 function HomeScreen() {
-  const sectionsRef = React.useRef<any[]>(null);
-
-  const sections = React.useMemo(() => {
-    if (!sectionsRef.current) {
-      const data = generateFakeData();
-      sectionsRef.current = data;
-    }
-    return sectionsRef.current;
-  }, []);
+  const [sections, setSections] = React.useState<any[]>(generateFakeData());
 
   const sectionListRef = React.useRef<SectionListWithTabsRef>(null);
-  const [clickCount, setClickCount] = React.useState(0);
 
   // Scroll to random tab when screen opens
   React.useEffect(() => {

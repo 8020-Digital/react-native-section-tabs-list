@@ -40,8 +40,8 @@
     "@typescript-eslint/parser": "^8.41.0",
     "eslint": "^9.34.0",
     "eslint-config-prettier": "^10.1.8",
-    "typescript": "5.8.3",
-    "react-native": "^0.79.5"
+    "react-native": "^0.79.5",
+    "typescript": "5.8.3"
   },
   "peerDependencies": {
     "react": ">=16.8.0",
