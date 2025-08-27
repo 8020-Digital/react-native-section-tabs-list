@@ -1,0 +1,44 @@
+{
+  "name": "react-native-section-tabs-list",
+  "version": "0.0.1",
+  "description": "SectionList with scrollable tabs to use in React Native projects",
+  "main": "lib/index.js",
+  "types": "./lib/index.d.ts",
+  "scripts": {
+    "build": "rm -rf ./lib/* && yarn lint && tsc",
+    "lint": "eslint src --ext .ts,.tsx"
+  },
+  "keywords": [
+    "react-native",
+    "react",
+    "native",
+    "ios",
+    "android",
+    "scroll",
+    "tabs",
+    "sectionlist",
+    "flatlist",
+    "scrollview"
+  ],
+  "author": "Pedro Goiânia",
+  "license": "MIT",
+  "homepage": "https://github.com/8020-Digital/react-native-section-tabs-list",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/8020-Digital/react-native-section-tabs-list"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@types/react": "^19.1.11",
+    "@typescript-eslint/eslint-plugin": "^8.41.0",
+    "@typescript-eslint/parser": "^8.41.0",
+    "eslint": "^9.34.0",
+    "eslint-config-prettier": "^10.1.8",
+    "typescript": "5.8.3"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-native": ">=0.60.0"
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+}
