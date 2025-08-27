@@ -29,8 +29,8 @@ interface IProps extends SectionListProps<any> {
   renderTab: (section: SectionListData<any> & { isActive: boolean }) => React.ReactNode;
   sections: ReadonlyArray<SectionListData<any>>;
   onSectionsReady?: () => void;
-  renderItem?: (info: { item: any; index: number; section: SectionListData<any>; separators: any }) => React.ReactNode;
-  renderSectionHeader?: (info: { section: SectionListData<any> }) => React.ReactNode;
+  renderItem?: (info: { item: any; index: number; section: SectionListData<any>; separators: any }) => React.ReactElement | null;
+  renderSectionHeader?: (info: { section: SectionListData<any> }) => React.ReactElement | null;
   keyExtractor?: (item: any, index: number) => string;
   showsVerticalScrollIndicator?: boolean;
 }
@@ -363,7 +363,6 @@ const SectionList = React.forwardRef<SectionListWithTabsRef, IProps>(({
         flashScrollIndicators: () => tabBarRef.current?.flashScrollIndicators(),
         getScrollResponder: () => (tabBarRef.current?.getScrollResponder() as any),
         getScrollableNode: () => tabBarRef.current?.getScrollableNode(),
-        getNativeScrollRef: () => (tabBarRef.current?.getNativeScrollRef() as any),
       },
       scrollToSection: (index: number, retryOptions?: { maxRetries?: number; timeoutMs?: number; retryDelayMs?: number }) => {
         performScrollToSection(index, retryOptions);

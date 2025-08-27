@@ -39,7 +39,6 @@ export interface TabBarRef {
   flashScrollIndicators: ScrollView['flashScrollIndicators'];
   getScrollResponder: ScrollView['getScrollResponder'];
   getScrollableNode: ScrollView['getScrollableNode'];
-  getNativeScrollRef: ScrollView['getNativeScrollRef'];
 }
 
 const TabBar = React.forwardRef<TabBarRef, IProps>(({
@@ -60,7 +59,6 @@ const TabBar = React.forwardRef<TabBarRef, IProps>(({
     flashScrollIndicators: () => scrollViewRef.current?.flashScrollIndicators(),
     getScrollResponder: () => (scrollViewRef.current?.getScrollResponder() as any),
     getScrollableNode: () => scrollViewRef.current?.getScrollableNode(),
-    getNativeScrollRef: () => (scrollViewRef.current?.getNativeScrollRef() as any),
   }), []);
 
   const getScrollAmount = React.useCallback(() => {
